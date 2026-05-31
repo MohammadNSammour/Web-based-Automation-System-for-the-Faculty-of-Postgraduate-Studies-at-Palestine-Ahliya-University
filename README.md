@@ -1,4 +1,4 @@
-# MPA — Graduate Studies Management (Palestine Ahliya University)
+# MPA - Graduate Studies Management (Palestine Ahliya University)
 
 MPA is a lightweight PHP/MySQL multi-page application for managing graduate studies workflows: user login, role assignment, form submissions, notifications, and small admin utilities.
 
