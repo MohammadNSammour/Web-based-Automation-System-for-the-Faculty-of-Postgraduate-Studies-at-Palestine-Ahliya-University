@@ -1,0 +1,13 @@
+Sub CreateMonthlyFollowUpForm()
+    Dim doc As Document
+    Set doc = Documents.Add
+
+    With doc
+        .Paragraphs(1).Range.Text = "نموذج 720 المتابعة الشهرية للمشرف والطالب"
+        .Paragraphs(1).Range.Style = "Title"
+
+        .Paragraphs.Add
+        .Paragraphs(2).Range.Text = "تفاصيله موجودة في Forms.sql"
+
+    End With
+End Sub
