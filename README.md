@@ -196,12 +196,3 @@ mysqldump -u root -p mpa_db > mpa_db_$(date +%F).sql
 mysqldump -u root -p --no-data mpa_db > mpa_schema.sql
 ```
 
----
-
-## Next actions I can help with
-
-- Convert password storage to hashed passwords and update login flow (I can implement migration script).
-- Add automated tests (simple PHP scripts or Selenium) to verify critical flows.
-- Add environment-based db.php (use .env) and a small setup script.
-
-Tell me which you'd like and I'll implement it.
