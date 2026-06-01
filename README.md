@@ -1,49 +1,83 @@
-# MPA - Graduate Studies Management (Palestine Ahliya University)
+# MPA — Graduate Studies Management (Palestine Ahliya University)
 
-MPA is a lightweight PHP/MySQL multi-page application for managing graduate studies workflows: user login, role assignment, form submissions, notifications, and small admin utilities.
+MPA is a lightweight PHP/MySQL multi-page application for managing graduate studies workflows.
 
-This README focuses on precise, step‑by‑step instructions to run the project correctly and to verify that form and user data are stored and handled properly.
-
----
-
-## What this project does (short)
-
-- Provides an AJAX login flow (login.php + login.js) with a session-backed CAPTCHA and role handling (students vs. employees).
-- Stores users, employee roles, and submitted forms in MySQL (see Database Files/).
+This README is rebuilt to focus on the exact project startup order, the SQL files that must be imported, the login and form pages, and runtime requirements for the system.
 
 ---
 
-## Prerequisites (exact)
+## What this project includes
 
-- Windows (recommended) or Linux/macOS
-- XAMPP (Apache + PHP + MySQL/MariaDB) or any LAMP/WAMP stack
-- PHP 7.4+ (PHP 8 recommended)
-- PHP extensions: mysqli, mbstring, session
-- Browser for testing (Chrome/Firefox/Edge)
+- `login.php` — login page and AJAX authentication endpoint
+- `login.js` — login client logic, CAPTCHA refresh, and password visibility
+- `form.php` — main form entry page
+- `actionForm.php` — form interaction handler
+- `getForm.php` — returns form definition/data via AJAX
+- `saveForm.php` — saves form submissions
+- `getStep.php` — multi-step form helper
+- `notifications.php` — notifications page
+- `getNotifications.php` — notifications AJAX endpoint
+- `markNotifRead.php` — mark notification read
+- `sendNotification.php` — send notifications
+- `users.php` — user listing / admin page
+- `db.php` — database connection configuration
+- `thesis.php`, `serveThesis.php` — thesis-related pages
+- SQL files in `Database Files/` for schema, forms, and test data
 
 ---
 
-## Exact Step-by-step Setup (Windows + XAMPP)
+## Required environment
 
-1) Install and start XAMPP
+- Windows with XAMPP is recommended
+- Apache + PHP + MySQL/MariaDB
+- PHP 7.4 or newer (PHP 8 recommended)
+- PHP extensions: `mysqli`, `mbstring`, `session`
+- Browser for testing: Chrome, Firefox, Edge, or Safari
 
-- Install XAMPP from https://www.apachefriends.org
-- Start Apache and MySQL from XAMPP Control Panel.
+---
 
-2) Place project files
+## Import order: first Database.sql, then SQL Forms, then Test data
 
-- Copy the project folder into C:\xampp\htdocs\MPA
+This is the most important part.
 
-3) Create and import database (recommended charset)
+1. Import `Database Files/Database.sql`
+   - Creates the main database schema and core lookup tables.
 
-Option A — phpMyAdmin (GUI):
+2. Import `Database Files/Sql Forms/*.sql`
+   - Adds the form definitions and form-specific tables.
+   - Import these files in filename order, or use `All the forms.sql` if present.
 
-- Open http://localhost/phpmyadmin/ → New → create database mpa_db (utf8mb4)
-- Import C:\xampp\htdocs\MPA\Database Files\Database.sql
+3. Import `Database Files/Test.sql`
+   - Loads test records used by the application.
 
-Option B — CLI (precise commands):
+If you import in the wrong order, you may get missing table or foreign key errors.
 
-```bash
+---
+
+## Step-by-step setup (Windows + XAMPP)
+
+1. Copy the project to XAMPP
+
+- Place the folder in `C:\xampp\htdocs\MPA`
+
+2. Start services
+
+- Open XAMPP Control Panel
+- Start `Apache` and `MySQL`
+
+3. Create the database
+
+### Option A — phpMyAdmin
+
+- Open `http://localhost/phpmyadmin/`
+- Create database `mpa_db` with utf8mb4 encoding
+- Import `Database Files/Database.sql`
+- Import each file from `Database Files/Sql Forms/` in order
+- Import `Database Files/Test.sql`
+
+### Option B — MySQL CLI
+
+```powershell
 cd "C:\xampp\mysql\bin"
 mysql -u root -p
 CREATE DATABASE mpa_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -51,9 +85,21 @@ exit
 mysql -u root -p mpa_db < "C:\xampp\htdocs\MPA\Database Files\Database.sql"
 ```
 
-4) Configure db.php
+Then import forms and test data:
 
-- Open db.php and set connection values. For development add strict mysqli reporting to surface SQL errors:
+```powershell
+$files = Get-ChildItem "C:\xampp\htdocs\MPA\Database Files\Sql Forms\*.sql" | Sort-Object Name
+foreach ($file in $files) {
+  & "C:\xampp\mysql\bin\mysql.exe" -u root -p mpa_db < $file.FullName
+}
+& "C:\xampp\mysql\bin\mysql.exe" -u root -p mpa_db < "C:\xampp\htdocs\MPA\Database Files\Test.sql"
+```
+
+4. Configure `db.php`
+
+Open `db.php` and set the database connection values for your environment.
+
+Example:
 
 ```php
 <?php
@@ -65,134 +111,122 @@ $db_name = 'mpa_db';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 $conn->set_charset('utf8mb4');
-if ($conn->connect_error) die('DB connection error: '.$conn->connect_error);
+if ($conn->connect_error) {
+    die('DB connection error: ' . $conn->connect_error);
+}
 ?>
 ```
 
-5) Create a test user (SQL snippet)
+5. Create or verify a login user
 
-Run in phpMyAdmin SQL tab or MySQL CLI to create a known test user (adjust fields to match your schema):
+If your import does not include a working login, add one:
 
 ```sql
 INSERT INTO Users (UserName, Password, FirstName, LastName, UserType)
 VALUES ('teststudent','testpass','Test','Student','Student');
 ```
 
-Note: the current project compares passwords as plain text. See Security notes below for migrating to hashed passwords.
+6. Open the login page
 
-6) Open the app
-
-- Visit http://localhost/MPA/login.php and log in with the test user above.
+- Visit `http://localhost/MPA/login.php`
+- Enter the test credentials and verify the application redirects after login
 
 ---
 
-## How to verify data correctness (forms and users)
+## Page categories
 
-Follow these checks immediately after import and after a form submission to ensure integrity.
+### Login and authentication
 
-1) Verify users table
+- `login.php`
+- `login.js`
+- `logout.php`
 
-Run this query in phpMyAdmin or MySQL CLI:
+### Form interaction and user workflows
+
+- `form.php`
+- `actionForm.php`
+- `getForm.php`
+- `saveForm.php`
+- `getStep.php`
+
+### Notifications
+
+- `notifications.php`
+- `getNotifications.php`
+- `markNotifRead.php`
+- `sendNotification.php`
+- `notifications.js`
+- `notifications.css`
+
+### Database and admin
+
+- `db.php`
+- `users.php`
+- `thesis.php`
+- `serveThesis.php`
+
+---
+
+## Runtime requirements and checks
+
+- `mysqli` extension must be enabled
+- `mbstring` extension must be enabled
+- `session` support must be enabled
+- `session.save_path` must be writable
+- `upload_max_filesize` and `post_max_size` must support your largest uploads
+- `max_input_vars` may need raising for very large forms
+- `date.timezone` should be set in `php.ini`
+
+Use a quick diagnostic file if needed:
+
+```php
+<?php
+phpinfo();
+```
+
+Save this as `phpinfo.php` and open `http://localhost/MPA/phpinfo.php`.
+
+---
+
+## Verify the system works
+
+1. Log in through `login.php`
+2. Confirm redirect to `dashboard.php`
+3. Open a form page and submit data
+4. Verify the form record is saved in the database
+5. Check that user rows exist in the `Users` table
+
+### Verification queries
 
 ```sql
 SELECT UserID, UserName, FirstName, LastName, UserType FROM Users LIMIT 50;
-```
-
-Confirm that expected rows exist and that UserType values are as expected (Student or Employee).
-
-2) Verify employee role mapping
-
-```sql
 SELECT e.UserID, e.EmployeeNumber, er.Role
 FROM Employees e
 JOIN Employee_Roles er ON er.EmployeeNumber = e.EmployeeNumber
 LIMIT 50;
-```
-
-3) Verify a submitted form arrives in the DB
-
-- Submit a form in the application UI, then run a query against the table that stores forms (replace Forms with actual table name):
-
-```sql
 SELECT * FROM Forms ORDER BY CreatedAt DESC LIMIT 10;
 ```
 
-Check the relevant columns (user id, form fields, timestamps). If fields are empty or missing, inspect the server network request and the server-side handler.
-
-4) Quick network-level test (simulate login)
-
-Use curl to simulate the AJAX POST (adjust credentials):
+### Command-line login test
 
 ```bash
 curl -i -X POST -F "username=teststudent" -F "password=testpass" -F "captcha=1234" http://localhost/MPA/login.php
 ```
 
-If you get a JSON response {"success":true} then server-side login accepted the test values.
+---
 
-If you get errors, enable PHP/SQL error reporting (see Troubleshooting).
+## Notes
+
+- The current password check is plaintext. Use `password_hash()` and `password_verify()` before production.
+- Import `Database.sql` first, then `Sql Forms` files, then `Test.sql`.
+- If form data is missing, inspect the browser Network tab and server logs.
 
 ---
 
-## Recommended development / server settings (quick checklist)
+## Next actions
 
-- Enable mysqli strict reporting while developing: mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT) in db.php.
-- Set connection charset to utf8mb4 and verify DB collation matches.
-- Ensure session_start() is the first output in all scripts that rely on sessions.
-- For dev only: enable display_errors = On and error_reporting = E_ALL in php.ini.
-- Keep backups of the database before running migrations.
+If you want, I can also add:
 
----
-
-## Useful debugging tips (forms & user data)
-
-- Browser DevTools → Network tab: inspect the POST request payload for form submissions and the JSON response.
-- Server logs: C:\xampp\apache\logs\error.log (Windows).
-- Add temporary logging inside server handlers (error_log or file logging) to capture incoming raw POST data for problematic forms.
-- If using prepared statements (recommended), always bind and validate typed values.
-
-Example: log incoming POST (temporary, remove in production):
-
-```php
-file_put_contents(__DIR__.'/tmp/post.log', print_r($_POST, true), FILE_APPEND);
-```
-
----
-
-## Security & data-integrity notes (must-do before production)
-
-1) Password hashing
-
-- Migrate passwords to PHP password_hash()/password_verify(). Example migration path:
-
-  - Add migration script that reads each user password, if not hashed, replace with password_hash($plaintext, PASSWORD_DEFAULT).
-  - Update login.php to use password_verify($entered, $storedHash).
-
-2) Input validation & sanitization
-
-- Enforce server-side validation for all form fields (types, lengths, required fields).
-- Use prepared statements (already used) and explicit casts for numeric fields.
-
-3) CSRF protection
-
-- Add CSRF tokens to state-changing POST forms and verify them server-side.
-
-4) Rate limiting
-
-- Limit login attempts per IP or per account to reduce brute-force risk.
-
----
-
-## Backups & migrations
-
-- Backup DB daily (mysqldump):
-
-```bash
-mysqldump -u root -p mpa_db > mpa_db_$(date +%F).sql
-```
-
-- Keep a schema-only dump for migrations:
-
-```bash
-mysqldump -u root -p --no-data mpa_db > mpa_schema.sql
-```
-
+- a Windows import script for all SQL files,
+- `.env` support for `db.php`,
+- or password hashing support in `login.php`.

@@ -297,7 +297,7 @@ function renderField(field, savedVal, readOnly, prefix) {
     } else if (type === 'file' || type === 'signature') {
         // الهيكل الموحد: uploads/forms/{formId}/{submissionId}/filename
         var subId = PAGE_SUB_ID || 0;
-        if (ro && val) {
+        if (ro && val) {//
             var fileUrl = 'uploads/forms/' + PAGE_FORM_ID + '/' + subId + '/' + esc(val);
             html += '<a href="' + fileUrl + '" target="_blank" style="color:#1d5c36;text-decoration:underline;"> ' + esc(val) + '</a>';
         }

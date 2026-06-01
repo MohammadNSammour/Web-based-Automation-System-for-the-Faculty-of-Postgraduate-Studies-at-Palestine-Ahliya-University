@@ -349,7 +349,7 @@ unset($f);// مهم: نستخدم unset($f) بعد الحلقة لإلغاء ا�
 $allFields = array_merge($previousFields, $currentFields);
 $canAct    = $submissionId > 0 && $currentStepOrder > 1;
 //what's we return from this api is a JSON object that contains all the necessary information for the frontend to render the form correctly.
-
+//they will be recived in form.js in the loadForm() function where we make an AJAX call to getForm.php and then use the returned data to populate the form fields, set the current step, and determine what actions the user can take based on their role and the submission status.
 echo json_encode([
     'success'            => true,// this indicates that the API call was successful and the frontend can proceed to use the data.
     'form_id'            => $formId,// the ID of the form type being accessed, useful for the frontend to know which form structure it is working with.

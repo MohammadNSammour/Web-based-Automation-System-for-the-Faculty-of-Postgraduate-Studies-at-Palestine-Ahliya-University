@@ -319,7 +319,7 @@ if ($currentRole === 'Student' && $studentInfo) {
     <a href="notifications.php" class="side-btn">إرسال إشعار</a>
     <?php endif; ?>
     <?php if ($currentRole === 'Admin'): ?>
-    <a href="users.php" class="side-btn">إدارة المستخدمين</a>
+    <a href="users.php" class="side-btn">إدارة المستخدمين والنماذج</a>
     <?php endif; ?>
     <hr class="sep">
     <a href="logout.php" class="btn-logout">تسجيل الخروج</a>

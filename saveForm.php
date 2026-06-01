@@ -100,7 +100,9 @@ if ($submissionId > 0) {
             echo json_encode(['success'=>false,'message'=>'لا يمكنك تعديل هذا الطلب.']); exit;
         }
     }
-} else {
+} 
+
+else {
     if ($currentRole === 'Student') {
         $stmtStu = $conn->prepare("SELECT StudentNumber FROM Students WHERE UserID=?");
         if (!$stmtStu) { echo json_encode(['success'=>false,'message'=>'خطأ في قاعدة البيانات: '.$conn->error]); exit; }

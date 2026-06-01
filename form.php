@@ -16,6 +16,7 @@ if (!isset($_SESSION['user_id'])) { header('Location: login.php'); exit; }
 $userId      = $_SESSION['user_id'];
 $userName    = $_SESSION['user_name'];
 $currentRole = $_SESSION['current_role'];
+//it brings them from the card that either represent a form to be filled or a submission to be reviewed and they are sent as query parameters in the url like form.php?form_id=1&submission_id=2
 $formId      = isset($_GET['form_id'])       ? (int)$_GET['form_id']       : 0;
 $subId       = isset($_GET['submission_id']) ? (int)$_GET['submission_id'] : 0;
 

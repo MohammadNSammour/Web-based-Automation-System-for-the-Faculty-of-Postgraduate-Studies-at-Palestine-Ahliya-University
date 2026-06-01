@@ -153,17 +153,6 @@ CREATE TABLE FormTypes (
     OpeningMessage           TEXT NULL
         COMMENT 'رسالة تنبيه عند فتح النموذج — NULL = لا رسالة'
 );
-ALTER TABLE FormTypes
-    ADD COLUMN IF NOT EXISTS Category ENUM(
-        'Enrollment','Supervision','Monitoring','Defense','Completion'
-    ) NOT NULL DEFAULT 'Enrollment' AFTER Description,
-
-    ADD COLUMN IF NOT EXISTS IsStartingForm TINYINT(1) NOT NULL DEFAULT 0
-        COMMENT '1 = نموذج يبدأه المستخدم مباشرة من لوحة التحكم' AFTER Category,
-
-    ADD COLUMN IF NOT EXISTS DisplayOrder INT NOT NULL DEFAULT 1
-        COMMENT 'ترتيب النموذج في التسلسل الصارم' AFTER IsStartingForm;
-
 
 CREATE TABLE FormWorkflowSteps (
     StepID               INT AUTO_INCREMENT PRIMARY KEY,
@@ -211,9 +200,9 @@ CREATE TABLE FormFields (
     MaxRepeat        TINYINT NOT NULL DEFAULT 1,
     DataSource       VARCHAR(255) NULL,
     ConditionalOn    VARCHAR(100) NULL,
-    ConditionalValue VARCHAR(100) NULL,-- مثال: "coordinator_decision:قبول مشروط" ,any field contains this value will show the conditional field
+    ConditionalValue VARCHAR(100) NULL,-- "coordinator_decision:قبول مشروط" ,any field contains this value will show the conditional field
     FieldOrder       INT NOT NULL DEFAULT 1,
-    FieldValidation  JSON NULL,
+    FieldValidation  JSON NULL, -- {"min":0,"max":100} أو {"regex":"^[A-Za-z]+$"}
     Placeholder      VARCHAR(200),
     CSSClass         VARCHAR(100) DEFAULT 'col-12',
     FOREIGN KEY (SectionID)
@@ -292,7 +281,7 @@ CREATE TABLE StudentProgress (
 CREATE TABLE FormValues (
     SubmissionID INT  NOT NULL,
     FieldID      INT  NOT NULL,
-    StepID       INT  NOT NULL,
+    StepID       INT  NOT NULL,-- لتتبع القيم في كل خطوة، خاصة مع تكرار الخطوات في نموذج 720
     FieldValue   TEXT,
     EnteredAt    DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (SubmissionID, FieldID, StepID),

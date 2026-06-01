@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!$captcha || $captcha != $_SESSION['captcha_result']) {
-    // ما نغير الرقم، نخليه نفسه
+        $_SESSION['captcha_result'] = rand(1000, 9999);
     echo json_encode([
         'success' => false,
         'message' => 'رمز التحقق غير صحيح، أدخل الرقم الظاهر أمامك.',
