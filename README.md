@@ -221,12 +221,3 @@ curl -i -X POST -F "username=teststudent" -F "password=testpass" -F "captcha=123
 - Import `Database.sql` first, then `Sql Forms` files, then `Test.sql`.
 - If form data is missing, inspect the browser Network tab and server logs.
 
----
-
-## Next actions
-
-If you want, I can also add:
-
-- a Windows import script for all SQL files,
-- `.env` support for `db.php`,
-- or password hashing support in `login.php`.
